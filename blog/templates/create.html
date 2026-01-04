@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h3>New Blog Post</h3>
+    <h3>New Post</h3>
     <form method="POST">
         {{ form.hidden_tag() }}
         <div>
@@ -19,7 +19,10 @@
             {% endfor %}
         </div>
 
-        {{ form.submit() }}
+        <p>
+            {{ form.save_draft() }}
+            {{ form.publish() }}
+        </p>
     </form>
 
 {% endblock %}

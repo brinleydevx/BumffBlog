@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>{{ user.username }}'s Profile</h2>
+
+{% if user.email %}
+<p>Email: {{ user.email }}</p>
+{% endif %}
+
+<hr>
+
+<h3>Posts by {{ user.username }}</h3>
+
+{% if posts %}
+    {% for post in posts %}
+        <article>
+            <h4>{{ post.title }}</h4>
+            <small>{{ post.date_created.strftime("%Y-%m-%d") }}</small>
+            <p>{{ post.content[:150] }}...</p>
+
+            <a href="{{ url_for('main.post_detail', id=post.id) }}">
+                Read more
+            </a>
+
+            {% if current_user.is_authenticated and current_user == user %}
+                |
+                <a href="{{ url_for('main.edit_post', id=post.id) }}">
+                    Edit
+                </a>
+
+                <form method="POST"
+                      action="{{ url_for('main.delete_post', post_id=post.id) }}"
+                      style="display:inline;">
+                    <button type="submit"
+                            onclick="return confirm('Delete this post?');">
+                        Delete
+                    </button>
+                </form>
+            {% endif %}
+        </article>
+        <hr>
+    {% endfor %}
+{% else %}
+    <p>No posts yet.</p>
+{% endif %}
+
+{% endblock %}

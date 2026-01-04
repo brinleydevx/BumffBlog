@@ -10,7 +10,7 @@ login_manager.login_view = "main.login"
 login_manager.login_message_category = "info"
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder="static")
     login_manager.init_app(app)
     app.config["SECRET_KEY"] = "dev-key"
     app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///blog.db'

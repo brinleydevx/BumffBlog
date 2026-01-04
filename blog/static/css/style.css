@@ -1,0 +1,50 @@
+body {
+    background-color: #e5eff7;
+    font-family: 'Poppins', sans-serif;
+    color: #191919;
+    }
+
+.brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 4.5rem;
+    line-height: 1.05;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
+    max-width: 500px;
+}
+
+.btn-dark {
+    border-radius: 999px;
+    padding: 0.6rem 1.4rem;
+}
+
+    .hero-section {
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+}
+
+    .hero-image img {
+    max-width: 100%;
+    height: auto;
+}
+
+footer a {
+color: #807f7f;
+text-decoration: none;
+margin-right: 1rem;
+font-size: 0.9rem;
+}
+
+footer a:hover {
+text-decoration: underline;
+}
