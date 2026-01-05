@@ -11,5 +11,5 @@ MarkupSafe==3.0.3
 SQLAlchemy==2.0.45
 typing_extensions==4.15.0
 Werkzeug==3.1.4
-alembic==2.1.1
+alembic==1.13.1
 PyMySQL==1.0.3
