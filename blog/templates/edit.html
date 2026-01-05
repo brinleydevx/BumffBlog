@@ -1,32 +1,48 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h3>Edit Post</h3>
+<div class="editor-container">
+  <form method="POST" class="editor-form">
+    {{ form.hidden_tag() }}
 
-<form method="POST">
-  {{ form.hidden_tag() }}
+    <div class="editor-top">
+      <div>
+        {{ form.title(class="editor-title", placeholder="Post title") }}
+        {% for error in form.title.errors %}<small class="text-error">{{ error }}</small>{% endfor %}
+      </div>
 
-  <div>
-    {{ form.title.label }}
-    {{ form.title(size=60) }}
-    {% for error in form.title.errors %}
-      <small>{{ error }}</small>
-    {% endfor %}
-  </div>
+      <div class="editor-actions">
+        {{ form.publish(class="btn btn-primary", value="Save Changes") }}
+        <a class="btn btn-outline" href="{{ url_for('main.post_detail', id=post.id) }}">Cancel</a>
+      </div>
+    </div>
 
-  <div>
-    {{ form.content.label }}
-    {{ form.content(rows=10, cols=60) }}
-    {% for error in form.content.errors %}
-      <small>{{ error }}</small>
-    {% endfor %}
-  </div>
+    <div class="editor-main">
+      <div style="flex:1">
+        {{ form.content(class="editor-body", rows=18, placeholder="Write your post here...") }}
+        {% for error in form.content.errors %}<small class="text-error">{{ error }}</small>{% endfor %}
+      </div>
 
-  {{ form.publish(value="Save Changes") }}
-</form>
+      <div class="editor-preview card" id="post-preview">
+        <!-- live preview -->
+        <div id="preview-content">{{ post.content|e }}</div>
+      </div>
+    </div>
+  </form>
+</div>
 
-<hr>
-
-<a href="{{ url_for('main.post_detail', id=post.id) }}">← Cancel</a>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var ta = document.querySelector('.editor-body');
+  var preview = document.getElementById('preview-content');
+  if(!ta || !preview) return;
+  function render(){
+    // simple newline -> <br> preview
+    var html = ta.value.replace(/\n/g, '<br>');
+    preview.innerHTML = html;
+  }
+  ta.addEventListener('input', render);
+});
+</script>
 
 {% endblock %}

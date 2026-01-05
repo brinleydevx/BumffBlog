@@ -3,58 +3,86 @@
 {% block title %}Edit Account — Bumfi{% endblock %}
 
 {% block content %}
-  <h2>Edit Account</h2>
 
-  <form method="POST" enctype="multipart/form-data">
-    {{ form.hidden_tag() }}
+  <div class="container">
+    <div class="auth-card edit-account-card">
+      <h2 class="auth-title">Edit Account</h2>
 
-    <div>
-      {{ form.username.label }}
-      {{ form.username() }}
-      {% for e in form.username.errors %}<small>{{ e }}</small>{% endfor %}
+      <form method="POST" enctype="multipart/form-data" class="auth-form">
+        {{ form.hidden_tag() }}
+
+        <div class="edit-account-grid">
+          <div class="edit-avatar-column">
+            <div class="avatar-preview-wrap">
+              {% if current_user.profile_image %}
+                <img src="{{ url_for('static', filename='uploads/' ~ current_user.profile_image) }}" alt="avatar" class="avatar-preview">
+              {% else %}
+                <div class="avatar-preview avatar-placeholder">{{ current_user.username[0]|upper }}</div>
+              {% endif %}
+            </div>
+
+            <div class="muted" style="margin-top:0.75rem">Change profile picture</div>
+            <div class="form-row" style="margin-top:0.5rem">
+              {{ form.picture(class="input") }}
+              {% for e in form.picture.errors %}<small class="text-error">{{ e }}</small>{% endfor %}
+            </div>
+          </div>
+
+          <div class="edit-form-column">
+            <div class="form-row">
+              <label>{{ form.username.label }}</label>
+              {{ form.username(class="input") }}
+              <small id="username-feedback" class="muted"></small>
+              {% for e in form.username.errors %}<small class="text-error">{{ e }}</small>{% endfor %}
+            </div>
+
+            <div class="form-row">
+              <label>{{ form.email.label }}</label>
+              {{ form.email(class="input") }}
+              {% for e in form.email.errors %}<small class="text-error">{{ e }}</small>{% endfor %}
+            </div>
+
+            <div class="form-row">
+              <label>{{ form.full_name.label }}</label>
+              {{ form.full_name(class="input") }}
+            </div>
+
+            <div class="form-row">
+              <label>{{ form.bio.label }}</label>
+              {{ form.bio(class="input", rows=4) }}
+              {% for e in form.bio.errors %}<small class="text-error">{{ e }}</small>{% endfor %}
+            </div>
+
+            <div class="form-row two-col">
+              <div>
+                <label>{{ form.website.label }}</label>
+                <script src="{{ url_for('static', filename='js/validation.js') }}"></script>
+                <script>document.addEventListener('DOMContentLoaded', function(){ initValidation(); });</script>
+              {% endblock %}
+                {% for e in form.website.errors %}<small class="text-error">{{ e }}</small>{% endfor %}
+              </div>
+
+              <div>
+                <label>{{ form.github.label }}</label>
+                {{ form.github(class="input") }}
+                {% for e in form.github.errors %}<small class="text-error">{{ e }}</small>{% endfor %}
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label>{{ form.twitter.label }}</label>
+              {{ form.twitter(class="input") }}
+              {% for e in form.twitter.errors %}<small class="text-error">{{ e }}</small>{% endfor %}
+            </div>
+
+            <div class="form-row form-actions">
+              {{ form.submit(class="btn btn-primary") }}
+              <a class="muted" href="{{ url_for('main.user_profile', username=current_user.username) }}">Cancel</a>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
-
-    <div>
-      {{ form.email.label }}
-      {{ form.email() }}
-      {% for e in form.email.errors %}<small>{{ e }}</small>{% endfor %}
-    </div>
-
-    <div>
-      {{ form.full_name.label }}
-      {{ form.full_name() }}
-    </div>
-
-    <div>
-      {{ form.bio.label }}
-      {{ form.bio(rows=4, cols=50) }}
-      {% for e in form.bio.errors %}<small>{{ e }}</small>{% endfor %}
-    </div>
-
-    <div>
-      {{ form.website.label }}
-      {{ form.website() }}
-      {% for e in form.website.errors %}<small>{{ e }}</small>{% endfor %}
-    </div>
-
-    <div>
-      {{ form.github.label }}
-      {{ form.github() }}
-      {% for e in form.github.errors %}<small>{{ e }}</small>{% endfor %}
-    </div>
-
-    <div>
-      {{ form.twitter.label }}
-      {{ form.twitter() }}
-      {% for e in form.twitter.errors %}<small>{{ e }}</small>{% endfor %}
-    </div>
-
-    <div>
-      {{ form.picture.label }}
-      {{ form.picture() }}
-    </div>
-
-    <p>{{ form.submit() }}</p>
-  </form>
+  </div>
 
 {% endblock %}

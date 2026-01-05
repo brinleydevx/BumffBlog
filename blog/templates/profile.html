@@ -1,67 +1,95 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>{{ user.username }}'s Profile</h2>
-{% if user.profile_image %}
-    <img src="{{ url_for('static', filename='uploads/' ~ user.profile_image) }}" alt="{{ user.username }} avatar" style="width:96px;height:96px;border-radius:8px;object-fit:cover;">
-{% endif %}
-{% if user.full_name %}
-    <h3>{{ user.full_name }}</h3>
-{% endif %}
-{% if user.bio %}
-    <p class="profile-bio">{{ user.bio }}</p>
-{% endif %}
-<div class="profile-socials">
-    {% if user.website %}
-        <a href="{{ user.website }}" target="_blank" rel="noopener">Website</a>
-    {% endif %}
-    {% if user.github %}
-        <a href="{{ user.github }}" target="_blank" rel="noopener">GitHub</a>
-    {% endif %}
-    {% if user.twitter %}
-        <a href="{{ user.twitter }}" target="_blank" rel="noopener">Twitter</a>
-    {% endif %}
+<div class="container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {% if user.profile_image %}
+                    <img class="profile-avatar-large" src="{{ url_for('static', filename='uploads/' ~ user.profile_image) }}" alt="{{ user.username }} avatar">
+                {% else %}
+                    <div class="profile-avatar-placeholder">{{ user.username[0]|upper }}</div>
+                {% endif %}
+            </div>
+
+            <div class="profile-meta">
+                <h2 class="profile-username">{{ user.username }}</h2>
+                {% if user.full_name %}
+                    <div class="profile-fullname">{{ user.full_name }}</div>
+                {% endif %}
+
+                {% if user.bio %}
+                    <p class="profile-bio">{{ user.bio }}</p>
+                {% endif %}
+
+                <div class="profile-socials">
+                    {% if user.website %}
+                        <a href="{{ user.website }}" target="_blank" rel="noopener">Website</a>
+                    {% endif %}
+                    {% if user.github %}
+                        <a href="{{ user.github }}" target="_blank" rel="noopener">GitHub</a>
+                    {% endif %}
+                    {% if user.twitter %}
+                        <a href="{{ user.twitter }}" target="_blank" rel="noopener">Twitter</a>
+                    {% endif %}
+                </div>
+
+                <div class="profile-actions">
+                    {% if current_user.is_authenticated and current_user == user %}
+                        <a class="btn btn-outline" href="{{ url_for('main.account') }}">Edit profile</a>
+                    {% endif %}
+                    {% if user.email %}
+                        <span class="muted">{{ user.email }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-stats">
+            <div class="stat-item">
+                <strong>{{ posts|length }}</strong>
+                <div class="muted">Posts</div>
+            </div>
+        </div>
+    </div>
+
+    <section class="posts-list-section">
+        <h3>Posts by {{ user.username }}</h3>
+
+        {% if posts %}
+            <div class="posts-list">
+                {% for post in posts %}
+                    <article class="post-card">
+                        <div class="post-meta">
+                            {% if post.author.profile_image %}
+                                <img class="avatar" src="{{ url_for('static', filename='uploads/' ~ post.author.profile_image) }}" alt="{{ post.author.username }}">
+                            {% endif %}
+                            <div class="meta-text">
+                                <h4 class="post-title">{{ post.title }}</h4>
+                                <small>{{ post.date_created.strftime("%Y-%m-%d") }}</small>
+                            </div>
+                        </div>
+
+                        <p class="post-excerpt">{{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}</p>
+
+                        <div class="post-footer">
+                            <a class="read-link" href="{{ url_for('main.post_detail', id=post.id) }}">Read more</a>
+
+                            {% if current_user.is_authenticated and current_user == user %}
+                                <a href="{{ url_for('main.edit_post', id=post.id) }}" class="muted">Edit</a>
+                                <form method="POST" action="{{ url_for('main.delete_post', post_id=post.id) }}" style="display:inline;">
+                                    <button class="muted" type="submit" onclick="return confirm('Delete this post?');">Delete</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No posts yet.</p>
+        {% endif %}
+    </section>
+
 </div>
-
-{% if user.email %}
-<p>Email: {{ user.email }}</p>
-{% endif %}
-
-<hr>
-
-<h3>Posts by {{ user.username }}</h3>
-
-{% if posts %}
-    {% for post in posts %}
-        <article>
-            <h4>{{ post.title }}</h4>
-            <small>{{ post.date_created.strftime("%Y-%m-%d") }}</small>
-            <p>{{ post.content[:150] }}...</p>
-
-            <a href="{{ url_for('main.post_detail', id=post.id) }}">
-                Read more
-            </a>
-
-            {% if current_user.is_authenticated and current_user == user %}
-                |
-                <a href="{{ url_for('main.edit_post', id=post.id) }}">
-                    Edit
-                </a>
-
-                <form method="POST"
-                      action="{{ url_for('main.delete_post', post_id=post.id) }}"
-                      style="display:inline;">
-                    <button type="submit"
-                            onclick="return confirm('Delete this post?');">
-                        Delete
-                    </button>
-                </form>
-            {% endif %}
-        </article>
-        <hr>
-    {% endfor %}
-{% else %}
-    <p>No posts yet.</p>
-{% endif %}
 
 {% endblock %}

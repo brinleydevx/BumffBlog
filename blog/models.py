@@ -72,4 +72,26 @@ class Comment(db.Model):
     )
 
     parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=True)
-    replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy=True)
+    replies = db.relationship(
+        'Comment',
+        backref=db.backref('parent', remote_side=[id]),
+        lazy=True,
+        order_by='Comment.date_created'
+    )
+
+    # likes relationship (users who liked this comment)
+    likes = db.relationship('CommentLike', backref='comment', lazy='dynamic', cascade='all, delete-orphan')
+
+    @property
+    def likes_count(self):
+        return self.likes.count()
+
+
+class CommentLike(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=False)
+
+    user = db.relationship('User', backref=db.backref('comment_likes', lazy='dynamic'))
+
+    __table_args__ = (db.UniqueConstraint('user_id', 'comment_id', name='uix_user_comment'),)

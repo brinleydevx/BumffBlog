@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+  <form action="{{ url_for('main.search') }}" method="GET" style="margin:1rem 0; display:flex; gap:0.5rem;">
+    <input name="q" value="{{ q }}" placeholder="Search posts and authors" class="input" style="flex:1;" />
+    <button class="btn btn-primary">Search</button>
+  </form>
+
+  <div class="content-grid">
+    <main>
+      <h2>Results for "{{ q }}"</h2>
+      {% if results %}
+        {% for post in results %}
+          <article class="post-card">
+            <div class="post-meta">
+              {% if post.author.profile_image %}
+                <img class="avatar" src="{{ url_for('static', filename='uploads/' ~ post.author.profile_image) }}" alt="{{ post.author.username }}">
+              {% endif %}
+              <div class="meta-text">
+                <h4 class="post-title"><a href="{{ url_for('main.post_detail', id=post.id) }}">{{ post.title }}</a></h4>
+                <small class="muted">{{ post.date_created.strftime("%Y-%m-%d") }} by <a href="{{ url_for('main.user_profile', username=post.author.username) }}">{{ post.author.username }}</a></small>
+              </div>
+            </div>
+            <p class="post-excerpt">{{ post.content[:220] }}{% if post.content|length > 220 %}...{% endif %}</p>
+          </article>
+        {% endfor %}
+      {% else %}
+        <p>No results found.</p>
+      {% endif %}
+    </main>
+
+    <aside class="sidebar">
+      <div class="recommended">
+        <h3>Recommended for "{{ q }}"</h3>
+        {% if recs %}
+          {% for r in recs %}
+            <a class="topic-pill" href="{{ url_for('main.post_detail', id=r.id) }}">{{ r.title }}</a>
+          {% endfor %}
+        {% else %}
+          <p class="muted">No recommendations.</p>
+        {% endif %}
+      </div>
+
+      <div class="recommended" style="margin-top:1rem;">
+        <h3>Matching authors</h3>
+        {% if authors %}
+          {% for a in authors %}
+            <div style="margin-bottom:0.5rem;">
+              <a href="{{ url_for('main.user_profile', username=a.username) }}">{{ a.username }}</a>
+              {% if a.full_name %} — <span class="muted">{{ a.full_name }}</span>{% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="muted">No authors found.</p>
+        {% endif %}
+      </div>
+    </aside>
+  </div>
+</div>
+
+{% endblock %}

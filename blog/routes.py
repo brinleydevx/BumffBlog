@@ -6,7 +6,9 @@ from . import db
 import os
 import secrets
 
-from .models import Post, User, Comment
+from .models import Post, User, Comment, CommentLike
+from sqlalchemy import or_
+from .utils import recommend_for_query, tokenize
 from .forms import PostForm, CommentForm, EditProfileForm, RequestResetForm, ResetPasswordForm
 from itsdangerous import URLSafeTimedSerializer
 
@@ -71,7 +73,7 @@ def login():
 def logout():
     logout_user()
     flash("Logged out", "info")
-    return redirect(url_for("home"))
+    return redirect(url_for("main.landing_page"))
 
 # User Profile Page
 @main.route("/user/<string:username>")
@@ -117,6 +119,30 @@ def home():
         .paginate(page=page, per_page=5)
 
     return render_template("home.html", posts=posts)
+
+
+@main.route('/search')
+def search():
+    q = request.args.get('q', '').strip()
+    results = []
+    recs = []
+    authors = []
+
+    if q:
+        results = recommend_for_query(q, limit=20, session=db.session)
+
+        # recommendations: top matches excluding the top results (by id)
+        top_ids = {p.id for p in results}
+        candidates = recommend_for_query(q, limit=50, session=db.session)
+        recs = [p for p in candidates if p.id not in top_ids][:6]
+
+        # find matching authors (username, full_name, bio)
+        pattern = f"%{q}%"
+        authors = User.query.filter(
+            or_(User.username.ilike(pattern), User.full_name.ilike(pattern), User.bio.ilike(pattern))
+        ).limit(6).all()
+
+    return render_template('search.html', q=q, results=results, recs=recs, authors=authors)
 
 @main.route("/create", methods=["GET", "POST"])
 @login_required
@@ -304,6 +330,26 @@ def delete_comment(id):
 
     flash("Comment deleted", "success")
     return redirect(url_for("main.post_detail", id=post_id))
+
+
+@main.route('/comment/<int:comment_id>/like', methods=['POST'])
+@login_required
+def like_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+
+    # toggle like
+    existing = CommentLike.query.filter_by(user_id=current_user.id, comment_id=comment_id).first()
+    if existing:
+        db.session.delete(existing)
+        db.session.commit()
+        flash('Removed like', 'info')
+    else:
+        like = CommentLike(user_id=current_user.id, comment_id=comment_id)
+        db.session.add(like)
+        db.session.commit()
+        flash('Comment liked', 'success')
+
+    return redirect(url_for('main.post_detail', id=comment.post.id))
 
 
 # post update -- here a user can update/edit their posts
